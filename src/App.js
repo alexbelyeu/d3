@@ -1,44 +1,53 @@
-import React from "react";
-import RGL, { WidthProvider } from "react-grid-layout";
+// React Grid Layout: https://github.com/STRML/react-grid-layout
+// Recharts: https://github.com/recharts/recharts http://recharts.org/en-US/api
+import React from 'react';
+import RGL, { WidthProvider } from 'react-grid-layout';
+import D3Chart from './D3Chart';
 
 const ReactGridLayout = WidthProvider(RGL);
 
 export default class NoDraggingLayout extends React.PureComponent {
   static defaultProps = {
-    className: "layout",
-    // isDraggable: false,
+    className: 'layout',
+    isDraggable: true,
     isResizable: false,
-    items: 3,
+    items: 12,
     cols: 2,
     rowHeight: 30,
-    onLayoutChange: function() {}
+    onLayoutChange: function() {},
   };
 
   constructor(props) {
     super(props);
 
+    this.rangeOfItems = i => Array.from(Array(i).keys()).map(x => ++x); // Array 1 .. props.items
+    this.width = 600;
     const layout = this.generateLayout();
     this.state = { layout };
   }
 
   generateDOM() {
-    return Array.from(Array(this.props.items).keys()).map((item, index) => {
-      return (
-        <div key={index}>
-          <span className="text">{index}</span>
-        </div>
-      )
-    })
+    return [
+      <div key={0}>
+        <D3Chart id={1} width={this.width} dataset={this.rangeOfItems(5)} />
+      </div>,
+      <div key={1}>
+        <D3Chart id={2} width={this.width} dataset={this.rangeOfItems(11)} />
+      </div>,
+      <div key={2}>
+        <D3Chart id={3} width={this.width} dataset={this.rangeOfItems(9)} />
+      </div>,
+    ];
   }
 
   generateLayout() {
-    return Array.from(Array(this.props.items).keys()).map((item, i) => {
+    return [1, 2, 3].map((item, i) => {
       return {
         x: (i * 2) % 12,
         y: Math.floor(i / 6) * 3,
-        w: 2,
-        h: 3,
-        i: i.toString()
+        w: 4,
+        h: 8,
+        i: i.toString(),
       };
     });
   }
@@ -52,6 +61,7 @@ export default class NoDraggingLayout extends React.PureComponent {
       <ReactGridLayout
         layout={this.state.layout}
         onLayoutChange={this.onLayoutChange}
+        style={{ width: this.width }}
         {...this.props}
       >
         {this.generateDOM()}

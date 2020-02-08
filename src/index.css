@@ -18,12 +18,12 @@ code {
 .react-grid-layout {
   background: #eee;
 }
-.layoutJSON {
+/* .layoutJSON {
   background: #ddd;
   border: 1px solid black;
   margin-top: 10px;
   padding: 10px;
-}
+} */
 .columns {
   -moz-columns: 120px;
   -webkit-columns: 120px;
@@ -33,8 +33,10 @@ code {
   box-sizing: border-box;
 }
 .react-grid-item:not(.react-grid-placeholder) {
-  background: #ccc;
-  border: 1px solid black;
+  background: #cca;
+  cursor: move;
+  
+  border: 3px groove rgb(193, 193, 161);
 }
 .react-grid-item.resizing {
   opacity: 0.9;
@@ -42,7 +44,7 @@ code {
 .react-grid-item.static {
   background: #cce;
 }
-.react-grid-item .text {
+/* .react-grid-item .text {
   font-size: 24px;
   text-align: center;
   position: absolute;
@@ -52,7 +54,11 @@ code {
   right: 0;
   margin: auto;
   height: 24px;
-}
+} */
+/* .chart {
+  cursor: grab;
+} */
+
 .react-grid-item .minMax {
   font-size: 12px;
 }
@@ -100,10 +106,10 @@ code {
   border: 1px solid black;
   background-color: #ddd;
 }
-.droppable-element {
+/* .droppable-element {
   width: 150px;
   background: #ddd;
   border: 1px solid black;
   margin-top: 10px;
   padding: 10px;
-}
+} */
