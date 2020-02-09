@@ -16,15 +16,14 @@ class D3Chart extends Component {
     const { dataset, width, id } = this.props
 
     // Dimensions
-    const totalW = width - 30;
     const totalH = 300
     const margin = {
       top: 5,
       bottom: 5,
       left: 25,
-      right: 5
+      right: 30
     }
-    const w = totalW - margin.left - margin.right
+    const w = width - margin.left - margin.right
     const h = totalH - margin.top - margin.bottom
 
     // Scales
@@ -45,7 +44,7 @@ class D3Chart extends Component {
        .select(this.svg)
        .attr("class", "bar-svg")
        .attr("id", `chart_${id}`)
-       .attr("width", totalW)
+       .attr("width", '100%')
        .attr("height", totalH)
 
      const g = svg
