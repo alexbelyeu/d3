@@ -13,7 +13,7 @@ class Bar extends Component {
 
     d3.select(this.rect)
       .attr('transform', `translate(${margin.left}, ${margin.top})`)
-      .datum(data)
+      .datum(data.releaseYear)
       .call(this.createAttributes)
   }
 
@@ -33,8 +33,8 @@ class Bar extends Component {
       .attr("y", d => yScale(d))
       .attr("width", xScale.bandwidth())
       .attr("height", d => height - yScale(d))
-      .attr("fill", d => `rgb(200, 0, ${d * 20})`)
-      .attr("rx", 10)
+      .attr("fill", d => `rgb(200, 0, ${d * 2})`)
+      .attr("rx", 1)
   }
 
   updateAttributes(selection) {

@@ -16,6 +16,7 @@ class NetflixChart extends Component {
       left: 25,
       right: 30,
     };
+    this.data = [];
     this.w = width - this.margin.left - this.margin.right;
     this.h = this.totalH - this.margin.top - this.margin.bottom;
   }
@@ -46,45 +47,43 @@ class NetflixChart extends Component {
       )
       .call(yAxis);
 
-    axis.selectAll('text').attr('fill', d => `rgb(200, 0, ${d * 20})`);
+    axis.selectAll('text').attr('fill', d => `rgb(200, 0, ${d * 0.1})`);
   }
 
   render() {
     // Data
     const { dataset, netflixData } = this.props;
-    console.log('CONSOLE.LOG: NetflixChart -> render -> netflixData', netflixData);
-    console.log('CONSOLE.LOG: NetflixChart -> render -> netflixData.length', netflixData.length);
-    console.log('CONSOLE.LOG: NetflixChart -> render -> d3.max(netflixData)', d3.max(netflixData));
 
     // Dimensions
     const { w, h } = this;
 
+    const dataRange = d3.range(netflixData.length);
     // Scales
-    const xScale = d3
+    this.xScale = d3
       .scaleBand()
-      .domain(d3.range(dataset.length))
-      .rangeRound([5, w])
+      .domain(dataRange)
+      .rangeRound([0, netflixData.length])
       .paddingInner(0.05);
     this.yScale = d3
       .scaleLinear()
-      .domain([0, d3.max(dataset)])
+      .domain([d3.min(netflixData, d => +d.releaseYear), d3.max(netflixData, d => +d.releaseYear)])
       .range([h, 0]);
 
     return (
       <svg ref={el => (this.svg = el)}>
         <g ref={el => (this.g = el)}>
-          {dataset.map((d, i) => (
+          {netflixData.length > 0 && netflixData.map((d, i) => (
             <Bar
               data={d}
               i={i}
               height={h}
               margin={this.margin}
-              xScale={xScale}
+              xScale={this.xScale}
               yScale={this.yScale}
               key={`${i}-bar`}
             />
           ))}
-          {dataset.map((d, i) => (
+          {/* {netflixData.map((d, i) => (
             <Text
               data={d}
               i={i}
@@ -93,7 +92,7 @@ class NetflixChart extends Component {
               yScale={this.yScale}
               key={`${i}-text`}
             />
-          ))}
+          ))} */}
         </g>
       </svg>
     );

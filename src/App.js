@@ -50,7 +50,7 @@ export default class NoDraggingLayout extends React.Component {
         x: (i * 2) % 12,
         y: Math.floor(i / 6) * 3,
         w: 2,
-        h: i === 0 ? 24 : 8,
+        h: i === 0 ? 12 : 8,
         i: i.toString(),
       };
     });
