@@ -25,7 +25,7 @@ export default class NoDraggingLayout extends React.Component {
     super(props);
 
     this.rangeOfItems = i => Array.from(Array(i).keys()).map(x => ++x); // Array 1 .. props.items
-    this.width = 600;
+    this.width = 1000;
     const layout = this.generateLayout();
     this.state = { layout, data: [] };
   }
@@ -33,13 +33,13 @@ export default class NoDraggingLayout extends React.Component {
   generateDOM() {
     return [
       <div key={0}>
-        <NetflixChart id={0} width={this.width} netflixData={this.state.data} dataset={this.rangeOfItems(11)} />
+        {this.state.data.length > 0 && <NetflixChart id={0} width={this.width} dataset={this.state.data} />}
       </div>,
       <div key={1}>
-        <HybridChart id={1} width={this.width} dataset={this.rangeOfItems(11)} />
+        {this.state.data.length > 0 && <NetflixChart id={1} width={this.width} dataset={this.state.data} />}
       </div>,
       <div key={2}>
-        <D3Chart id={2} width={this.width} dataset={this.rangeOfItems(9)} />
+        {this.state.data.length > 0 && <NetflixChart id={2} width={this.width} dataset={this.state.data} />}
       </div>,
     ];
   }
@@ -50,7 +50,7 @@ export default class NoDraggingLayout extends React.Component {
         x: (i * 2) % 12,
         y: Math.floor(i / 6) * 3,
         w: 2,
-        h: i === 0 ? 12 : 8,
+        h: 12,
         i: i.toString(),
       };
     });
@@ -62,15 +62,10 @@ export default class NoDraggingLayout extends React.Component {
 
   componentDidMount() {
     d3.csv(netflixData).then(data => {
-      this.setState({ data });
-    });
-  }
+      const filteredData = data.filter(d => !isNaN(d.userRatingScore));
 
-  shouldComponentUpdate(nextProps, nextState) {
-    if (nextState.data.length > 0) {
-      return true;
-    }
-    return false;
+      this.setState({ data: filteredData });
+    });
   }
 
   render() {
