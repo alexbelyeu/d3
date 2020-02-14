@@ -29,7 +29,7 @@ class NetflixChart extends Component {
     // Dimensions
     const { totalH, margin } = this;
 
-    // DOM
+    // SVG
     const svg = d3
       .select(this.svg)
       .attr('class', 'bar-svg')
@@ -40,7 +40,8 @@ class NetflixChart extends Component {
       .append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-    const yAxis = d3.axisLeft(this.yScale).tickValues([...this.yearsBucket, 2017]);
+    // Y Axis
+    const yAxis = d3.axisLeft(this.yAxisScale).tickFormat(d3.format('d'));
     d3.select(`#chart_${this.props.id}`)
       .append('g')
       .attr('id', `yAxis_${this.props.id}`)
@@ -56,7 +57,8 @@ class NetflixChart extends Component {
         .attr('font-size', 20)
         .text('Year of release')
 
-    const xAxis = d3.axisBottom(this.xScale).tickValues([...this.ratingBuckets, 99]);
+    // X Axis
+    const xAxis = d3.axisBottom(this.xAxisScale);
     d3.select(`#chart_${this.props.id}`)
       .append('g')
       .attr('id', `xAxis_${this.props.id}`)
@@ -71,46 +73,45 @@ class NetflixChart extends Component {
         .attr('font-size', 20)
         .text('Rating')
 
-    // const bins = bin().value(d => +d.releaseYear)(this.props.dataset);
-    // console.log('CONSOLE.LOG: NetflixChart -> render -> bin(dataset)', bins);
-
+    // Select + Data + Append + Cool stuff
     let parent = this;
     svg
       .selectAll()
       .data(this.props.dataset, d => d.userRatingScore + ':' + d.releaseYear) //55:1940
       .enter()
       .append('rect')
-        .attr('x', d => this.xScale(+d.userRatingScore))
-        .attr('y', d => this.yScale(+d.releaseYear))
-        .attr('width', this.xScale.bandwidth())
-        .attr('height', this.yScale.bandwidth())
+        .attr('x', d => this.xAxisScale(+d.userRatingScore) + 5)
+        .attr('y', d => this.yAxisScale(+d.releaseYear) - 5)
+        .attr('width', 10)
+        .attr('height', 10)
         .attr('rx', 50)
         .style('fill', d => this.myColor(+d.userRatingScore))
       .on('mouseover', function(d, i){
         d3.select(this)
           .transition()
-          .attr('x', parent.xScale(+d.userRatingScore) - parent.xScale.bandwidth()/2)
-          .attr('y', parent.yScale(+d.releaseYear) - parent.yScale.bandwidth()/2)
-          .attr('width', parent.xScale.bandwidth()*2)
-          .attr('height', parent.yScale.bandwidth()*2)
+          .attr('x', parent.xAxisScale(+d.userRatingScore))
+          .attr('y', parent.yAxisScale(+d.releaseYear) - 10)
+          .attr('width', 20)
+          .attr('height', 20)
           .attr('rx', 50)
-          .style('fill', parent.myColorReverse(+d.userRatingScore));
+          .style('fill', parent.myColor(+d.userRatingScore));
 
         svg.append("text")
           .attr('id', `t-${i}`)
-          .attr('x', parent.xScale(+d.userRatingScore) - parent.xScale.bandwidth()/2)
-          .attr('y', parent.yScale(+d.releaseYear) - parent.yScale.bandwidth()/2)
+          .attr('x', parent.xAxisScale(+d.userRatingScore) - 10)
+          .attr('y', parent.yAxisScale(+d.releaseYear) - 5)
           .attr('fill', 'black')
-          .attr('font-size', 12)
-          .text(`${d.title} (${d.releaseYear})`)
+          .attr('font-size', 14)
+          .attr('font-weight', 500)
+          .text(`${d.title} (${d.releaseYear}, ${d.userRatingScore})`)
       })
       .on('mouseout', function(d, i){
         d3.select(this)
           .transition()
-          .attr('x', parent.xScale(+d.userRatingScore))
-          .attr('y', parent.yScale(+d.releaseYear))
-          .attr('width', parent.xScale.bandwidth())
-          .attr('height', parent.yScale.bandwidth())
+          .attr('x', parent.xAxisScale(+d.userRatingScore) + 5)
+          .attr('y', parent.yAxisScale(+d.releaseYear) - 5)
+          .attr('width', 10)
+          .attr('height', 10)
           .attr('rx', 50)
           .style('fill', parent.myColor(+d.userRatingScore))
 
@@ -119,9 +120,9 @@ class NetflixChart extends Component {
   }
 
   render() {
-    // Data
     const { dataset } = this.props;
 
+    // Data for scales
     const ascendingYears = d3
       .map(dataset, d => +d.releaseYear)
       .keys()
@@ -130,7 +131,6 @@ class NetflixChart extends Component {
       .map(d => +d.x0)
       .filter(d => [1940, 1990, 2000, 2010, 2017].includes(+d))
       .sort(d3.ascending);
-    console.log('CONSOLE.LOG: NetflixChart -> render -> this.yearsBucket', this.yearsBucket);
     const ascendingRatings = d3
       .map(dataset, d => +d.userRatingScore)
       .keys()
@@ -140,42 +140,22 @@ class NetflixChart extends Component {
       .map(d => +d.x0)
       .filter(d => [55, 65, 70, 75, 80, 85, 90, 95].includes(+d))
       .sort(d3.ascending);
-    console.log('CONSOLE.LOG: NetflixChart -> render -> ratingBuckets', this.ratingBuckets);
 
     // Scales
     this.myColor = d3
-      .scaleLinear()
+      .scaleQuantile()
       .domain(d3.extent(dataset, d => +d.userRatingScore))
-      .range(['white', '#f00']);
-
-    this.myColorReverse = d3
-      .scaleLinear()
-      .domain(d3.extent(dataset, d => +d.userRatingScore))
-      .range(['#f00', 'white']);
-
-    this.xScale = d3
-      .scaleBand()
-      .domain(ascendingRatings)
-      .range([50, this.w - 175])
-      .paddingInner(0.05);
+      .range(['#e9e2d0', '#ea9085', '#d45d79', '#6e5773']);
 
     this.xAxisScale = d3
-      .scaleBand()
-      .domain(this.ratingBuckets)
+      .scaleLinear()
+      .domain([55, 99])
       .range([50, this.w - 175])
-      .paddingInner(0.05);
-
-    this.yScale = d3
-      .scaleBand()
-      .domain(ascendingYears)
-      .range([this.h - 50, 0])
-      .paddingInner(0.05);
 
     this.yAxisScale = d3
-      .scaleBand()
-      .domain(this.yearsBucket)
-      .range([this.h - 50, 0])
-      .paddingInner(0.05);
+      .scaleLinear()
+      .domain([1940, 2017])
+      .range([this.h - 50, this.margin.bottom])
 
     return <svg ref={el => (this.svg = el)}>
       <g id="netflix_logo">

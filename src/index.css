@@ -16,7 +16,7 @@ code {
   width: 100%;
 }
 .react-grid-layout {
-  background: #eee;
+  /* background: rgba(124, 134, 142, 0); */
 }
 /* .layoutJSON {
   background: #ddd;
@@ -30,13 +30,14 @@ code {
   columns: 120px;
 }
 .react-grid-item {
-  box-sizing: border-box;
+  /* box-sizing: border-box; */
+  border-radius: 10%;
 }
 .react-grid-item:not(.react-grid-placeholder) {
-  background: #cca;
+  background: rgb(160, 196, 215);
   cursor: move;
   
-  border: 3px groove rgb(193, 193, 161);
+  border: 1px solid rgb(193, 193, 161);
 }
 .react-grid-item.resizing {
   opacity: 0.9;

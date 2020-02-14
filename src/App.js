@@ -36,10 +36,7 @@ export default class NoDraggingLayout extends React.Component {
         {this.state.data.length > 0 && <NetflixChart id={0} width={this.width} dataset={this.state.data} />}
       </div>,
       <div key={1}>
-        {this.state.data.length > 0 && <NetflixChart id={1} width={this.width} dataset={this.state.data} />}
-      </div>,
-      <div key={2}>
-        {this.state.data.length > 0 && <NetflixChart id={2} width={this.width} dataset={this.state.data} />}
+        {this.state.data.length > 0 && <NetflixChart scaleBand id={1} width={this.width} dataset={this.state.data} />}
       </div>,
     ];
   }
