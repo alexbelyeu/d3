@@ -1,6 +1,10 @@
 body {
   padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  background-color: rgba(65, 65, 65, 0.192);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -34,10 +38,10 @@ code {
   border-radius: 10%;
 }
 .react-grid-item:not(.react-grid-placeholder) {
-  background: rgb(160, 196, 215);
+  background: rgb(255, 255, 255);
   cursor: move;
   
-  border: 1px solid rgb(193, 193, 161);
+  border: 2px solid rgb(63, 63, 63);
 }
 .react-grid-item.resizing {
   opacity: 0.9;
@@ -106,6 +110,17 @@ code {
   margin: 5px;
   border: 1px solid black;
   background-color: #ddd;
+}
+
+div.tooltip {	
+  position: absolute;	
+  text-align: center;	
+  padding: 2px;
+  font: 12px 'Montserrat';
+  background: rgba(255, 255, 255, 0.9);
+  border: 0px;
+  border-radius: 8px;	
+  pointer-events: none;	
 }
 /* .droppable-element {
   width: 150px;

@@ -29,6 +29,13 @@ class NetflixChart extends Component {
     // Dimensions
     const { totalH, margin } = this;
 
+    // Define the div for the tooltip
+    const div = d3
+      .select('body')
+      .append("div")	
+      .attr("class", "tooltip")				
+      .style("opacity", 0);
+
     // SVG
     const svg = d3
       .select(this.svg)
@@ -50,6 +57,7 @@ class NetflixChart extends Component {
 
     d3.select(`#yAxis_${this.props.id}`)
       .append('text')
+        .attr('font-family', 'Montserrat')
         .attr('x', -100)
         .attr('y', -50)
         .attr('transform', `rotate(-90)`)
@@ -67,6 +75,7 @@ class NetflixChart extends Component {
 
     d3.select(`#xAxis_${this.props.id}`)
       .append('text')
+        .attr('font-family', 'Montserrat')
         .attr('x', this.w/2 - 50)
         .attr('y', 50)
         .attr('fill', 'black')
@@ -96,14 +105,14 @@ class NetflixChart extends Component {
           .attr('rx', 50)
           .style('fill', parent.myColor(+d.userRatingScore));
 
-        svg.append("text")
-          .attr('id', `t-${i}`)
-          .attr('x', parent.xAxisScale(+d.userRatingScore) - 10)
-          .attr('y', parent.yAxisScale(+d.releaseYear) - 5)
-          .attr('fill', 'black')
-          .attr('font-size', 14)
-          .attr('font-weight', 500)
-          .text(`${d.title} (${d.releaseYear}, ${d.userRatingScore})`)
+          div
+            .transition()		
+            .duration(200)	
+            .style("opacity", .9);		
+          div.html(`${d.title} (${d.releaseYear}, ${d.userRatingScore})`)
+            .style('width', console.log(d.title.width))
+            .style("left", (d3.event.pageX) + "px")		
+            .style("top", (d3.event.pageY - 28) + "px");
       })
       .on('mouseout', function(d, i){
         d3.select(this)
@@ -114,6 +123,10 @@ class NetflixChart extends Component {
           .attr('height', 10)
           .attr('rx', 50)
           .style('fill', parent.myColor(+d.userRatingScore))
+
+        div.transition()
+          .duration(500)
+          .style("opacity", 0);
 
         d3.select(`#t-${i}`).remove();
       })
@@ -143,9 +156,9 @@ class NetflixChart extends Component {
 
     // Scales
     this.myColor = d3
-      .scaleQuantile()
+      .scaleLinear()
       .domain(d3.extent(dataset, d => +d.userRatingScore))
-      .range(['#e9e2d0', '#ea9085', '#d45d79', '#6e5773']);
+      .range(['#fdba9a', '#c81912']);
 
     this.xAxisScale = d3
       .scaleLinear()
@@ -160,31 +173,31 @@ class NetflixChart extends Component {
     return <svg ref={el => (this.svg = el)}>
       <g id="netflix_logo">
         <image href={logo} x={this.w - 40} y="0" height="100px" width="150px"/>
-        <text x={this.w - 100} y={120} fill="black" fontSize="14">
+        <text fontFamily="Montserrat" x={this.w - 100} y={120} fill="black" fontSize="14">
           The chart to the left illustrates a sample
         </text>
-        <text x={this.w - 100} y={140} fill="black" fontSize="14">
+        <text fontFamily="Montserrat" x={this.w - 100} y={140} fill="black" fontSize="14">
           of 1000 shows, distributed by year of release
         </text>
-        <text x={this.w - 100} y={160} fill="black" fontSize="14">
-          vs. rating. The data reveals that most shows on
+        <text fontFamily="Montserrat" x={this.w - 100} y={160} fill="black" fontSize="14">
+          vs. rating. The data reveals that most shows
         </text>
-        <text x={this.w - 100} y={180} fill="black" fontSize="14">
-          Netflix were produced in the last decade and
+        <text fontFamily="Montserrat" x={this.w - 100} y={180} fill="black" fontSize="14">
+          on Netflix were produced in the last decade
         </text>
-        <text x={this.w - 100} y={200} fill="black" fontSize="14">
-          that they rate higher than shows produced 
+        <text fontFamily="Montserrat" x={this.w - 100} y={200} fill="black" fontSize="14">
+          and that they rate higher than shows
         </text>
-        <text x={this.w - 100} y={220} fill="black" fontSize="14">
-          before the 2000s.
+        <text fontFamily="Montserrat" x={this.w - 100} y={220} fill="black" fontSize="14">
+          produced before the 2000s.
         </text>
-        <text x={this.w - 100} y={260} fill="black" fontSize="14" fontWeight={600}>
+        <text fontFamily="Montserrat" x={this.w - 100} y={260} fill="black" fontSize="14" fontWeight={600}>
           Hover over the circles to see what shows
         </text>
-        <text x={this.w - 100} y={280} fill="black" fontSize="14" fontWeight={600}>
+        <text fontFamily="Montserrat" x={this.w - 100} y={280} fill="black" fontSize="14" fontWeight={600}>
           are rated higher!
         </text>
-        <text x={this.w - 100} y={400} fill="black" fontSize="12">
+        <text fontFamily="Montserrat" x={this.w - 100} y={400} fill="black" fontSize="12">
           [Dataset = 1000]
         </text>
       </g>
