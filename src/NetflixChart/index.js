@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
 import logo from '../Netflix_Logo_RGB.png';
-import { bin } from 'd3-array';
 
 class NetflixChart extends Component {
   constructor(props) {
@@ -135,25 +134,6 @@ class NetflixChart extends Component {
   render() {
     const { dataset } = this.props;
 
-    // Data for scales
-    const ascendingYears = d3
-      .map(dataset, d => +d.releaseYear)
-      .keys()
-      .sort(d3.ascending);
-    this.yearsBucket = bin()(ascendingYears)
-      .map(d => +d.x0)
-      .filter(d => [1940, 1990, 2000, 2010, 2017].includes(+d))
-      .sort(d3.ascending);
-    const ascendingRatings = d3
-      .map(dataset, d => +d.userRatingScore)
-      .keys()
-      .sort(d3.ascending)
-      .filter(d => !isNaN(d));
-    this.ratingBuckets = bin()(ascendingRatings)
-      .map(d => +d.x0)
-      .filter(d => [55, 65, 70, 75, 80, 85, 90, 95].includes(+d))
-      .sort(d3.ascending);
-
     // Scales
     this.myColor = d3
       .scaleLinear()
@@ -162,42 +142,42 @@ class NetflixChart extends Component {
 
     this.xAxisScale = d3
       .scaleLinear()
-      .domain([55, 99])
+      .domain(d3.extent(dataset, d => +d.userRatingScore))
       .range([50, this.w - 175])
 
     this.yAxisScale = d3
       .scaleLinear()
-      .domain([1940, 2017])
+      .domain(d3.extent(dataset, d => +d.releaseYear))
       .range([this.h - 50, this.margin.bottom])
 
     return <svg ref={el => (this.svg = el)}>
       <g id="netflix_logo">
         <image href={logo} x={this.w - 40} y="0" height="100px" width="150px"/>
-        <text fontFamily="Montserrat" x={this.w - 100} y={120} fill="black" fontSize="14">
+        <text x={this.w - 100} y={120} fill="black" fontSize="14">
           The chart to the left illustrates a sample
         </text>
-        <text fontFamily="Montserrat" x={this.w - 100} y={140} fill="black" fontSize="14">
+        <text x={this.w - 100} y={140} fill="black" fontSize="14">
           of 1000 shows, distributed by year of release
         </text>
-        <text fontFamily="Montserrat" x={this.w - 100} y={160} fill="black" fontSize="14">
+        <text x={this.w - 100} y={160} fill="black" fontSize="14">
           vs. rating. The data reveals that most shows
         </text>
-        <text fontFamily="Montserrat" x={this.w - 100} y={180} fill="black" fontSize="14">
+        <text x={this.w - 100} y={180} fill="black" fontSize="14">
           on Netflix were produced in the last decade
         </text>
-        <text fontFamily="Montserrat" x={this.w - 100} y={200} fill="black" fontSize="14">
+        <text x={this.w - 100} y={200} fill="black" fontSize="14">
           and that they rate higher than shows
         </text>
-        <text fontFamily="Montserrat" x={this.w - 100} y={220} fill="black" fontSize="14">
+        <text x={this.w - 100} y={220} fill="black" fontSize="14">
           produced before the 2000s.
         </text>
-        <text fontFamily="Montserrat" x={this.w - 100} y={260} fill="black" fontSize="14" fontWeight={600}>
+        <text x={this.w - 100} y={260} fill="black" fontSize="14" fontWeight={600}>
           Hover over the circles to see what shows
         </text>
-        <text fontFamily="Montserrat" x={this.w - 100} y={280} fill="black" fontSize="14" fontWeight={600}>
+        <text x={this.w - 100} y={280} fill="black" fontSize="14" fontWeight={600}>
           are rated higher!
         </text>
-        <text fontFamily="Montserrat" x={this.w - 100} y={400} fill="black" fontSize="12">
+        <text x={this.w - 100} y={400} fill="black" fontSize="12">
           [Dataset = 1000]
         </text>
       </g>
