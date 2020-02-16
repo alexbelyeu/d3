@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
+import { groups } from 'd3-array';
 import logo from '../Netflix_Logo_RGB.png';
 
-class NetflixChart extends Component {
+class Histogram extends Component {
   constructor(props) {
     super(props);
     this.createAttributes = this.createAttributes.bind(this);
@@ -65,7 +66,7 @@ class NetflixChart extends Component {
         .attr('transform', `rotate(-90)`)
         .attr('fill', 'black')
         .attr('font-size', 20)
-        .text('Year of release')
+        .text('Number of movies')
 
     // X Axis
     const xAxis = d3.axisBottom(this.xAxisScale);
@@ -88,35 +89,22 @@ class NetflixChart extends Component {
     let parent = this;
     svg
       .selectAll()
-      .data(this.props.dataset)
-      .join('circle')
-        .attr('cx', d => this.xAxisScale(+d.userRatingScore))
-        .attr('cy', d => this.yAxisScale(+d.releaseYear))
-        .attr('r', 5)
-        .style('fill', d => this.myColor(+d.userRatingScore))
+      .data(this.ratingsHistogram)
+      .join('rect')
+        .attr('x', d => this.xAxisScale(+d.x0))
+        .attr('y', d => this.yAxisScale(this.moviesInBucket(d)))
+        .attr('width', d => this.xAxisScale(+d.x1) - this.xAxisScale(+d.x0))
+        .attr('height', d => this.h - padding - this.yAxisScale(this.moviesInBucket(d)))
+        .style('fill', d => this.myColor(this.moviesInBucket(d)))
       .on('mouseover', function(d, i){
-        d3.select(this)
-          .transition()
-          .attr('cx', parent.xAxisScale(+d.userRatingScore))
-          .attr('cy', parent.yAxisScale(+d.releaseYear))
-          .attr('r', 10)
-          .style('fill', parent.myColor(+d.userRatingScore));
-
-          div
-            .transition()		
-            .style("opacity", .9);		
-          div.html(`${d.title} (${d.releaseYear}, ${d.userRatingScore})`)
-            .style("left", (d3.event.pageX) + "px")		
-            .style("top", (d3.event.pageY - 28) + "px");
-      })
+        div
+          .transition()		
+          .style("opacity", .9);		
+          div.html(`${parent.moviesInBucket(d)} movies were rated between ${d.x0} and ${d.x1}`)
+          .style("left", (d3.event.pageX) + "px")		
+          .style("top", (d3.event.pageY - 28) + "px");
+        })
       .on('mouseout', function(d, i){
-        d3.select(this)
-          .transition()
-          .attr('cx', parent.xAxisScale(+d.userRatingScore))
-          .attr('cy', parent.yAxisScale(+d.releaseYear))
-          .attr('r', 5)
-          .style('fill', parent.myColor(+d.userRatingScore))
-
         div.transition()
           .style("opacity", 0);
       })
@@ -126,52 +114,56 @@ class NetflixChart extends Component {
     const { dataset } = this.props;
 
     const ratingMin = d3.min(dataset, d => +d.userRatingScore)
-    const yearMin = d3.min(dataset, d => +d.releaseYear)
     const ratingMax = d3.max(dataset, d => +d.userRatingScore)
-    const yearMax = d3.max(dataset, d => +d.releaseYear)
+    this.moviesInBucket = (d) => d3.sum(d, el => el.value);
+    
+    const groupsRatings = groups(dataset, d => +d.userRatingScore)
+    .sort((a, b) => a[0] - b[0])
+    .map(([key, value]) => ({key, value: value.length}))
+    
+    const histogram = d3.histogram().value(d => +d.key);
+    this.ratingsHistogram = histogram(groupsRatings);
+    const maxMoviesInBucket = d3.max(this.ratingsHistogram, d => this.moviesInBucket(d));
 
     // Scales
-    this.myColor = d3
-      .scaleLinear()
-      .domain([ratingMin, ratingMax])
-      .range(['#fdba9a', '#c81912']);
-
     this.xAxisScale = d3
       .scaleLinear()
-      .domain([ratingMin - 1, ratingMax])
-      .range([this.padding, this.w - this.chartSize])
+      .domain([ratingMin, ratingMax])
+      .range([this.padding, this.w - this.chartSize]);
+
+    this.myColor = d3
+      .scaleLinear()
+      .domain([0, maxMoviesInBucket])
+      .range(['#fdba9a', '#c81912']);
 
     this.yAxisScale = d3
       .scaleLinear()
-      .domain([yearMin - 1, yearMax])
-      .range([this.h - this.padding, this.margin.bottom])
+      .domain([0, maxMoviesInBucket])
+      .range([this.h - this.padding, this.margin.bottom]);
 
     return <svg ref={el => (this.svg = el)}>
       <g id="netflix_logo">
         <image href={logo} x={this.w - 40} y="0" height="100px" width="150px"/>
         <text x={this.w - 100} y={120} fill="black" fontSize="14">
-          The chart to the left illustrates a sample
+          The histogram to the left illustrates a
         </text>
         <text x={this.w - 100} y={140} fill="black" fontSize="14">
-          of 1000 shows, distributed by year of release
+          sample of 1000 shows, bucketed by rating.
         </text>
         <text x={this.w - 100} y={160} fill="black" fontSize="14">
-          vs. rating. The data reveals that most shows
+          It reveals how Netflix users have a
         </text>
         <text x={this.w - 100} y={180} fill="black" fontSize="14">
-          on Netflix were produced in the last decade
+          generally positive perception of the shows
         </text>
         <text x={this.w - 100} y={200} fill="black" fontSize="14">
-          and that they rate higher than shows
+          they watch on the platform.
         </text>
-        <text x={this.w - 100} y={220} fill="black" fontSize="14">
-          produced before the 2000s.
+        <text x={this.w - 100} y={240} fill="black" fontSize="14" fontWeight={600}>
+          Hover over the bars to see how many shows
         </text>
         <text x={this.w - 100} y={260} fill="black" fontSize="14" fontWeight={600}>
-          Hover over the circles to see what shows
-        </text>
-        <text x={this.w - 100} y={280} fill="black" fontSize="14" fontWeight={600}>
-          are rated higher!
+          are rated within each bucket!
         </text>
         <text x={this.w - 100} y={400} fill="black" fontSize="12">
           [Non-filtered dataset = 1000]
@@ -181,4 +173,4 @@ class NetflixChart extends Component {
   }
 }
 
-export default NetflixChart;
+export default Histogram;
