@@ -15,8 +15,10 @@ class NetflixChart extends Component {
       left: 35,
       right: 30,
     };
+    this.padding = 50;
+    this.chartSize = 175;
     this.data = [];
-    this.w = width - this.margin.left - this.margin.right - 175;
+    this.w = width - this.margin.left - this.margin.right - this.chartSize;
     this.h = this.totalH - this.margin.top - this.margin.bottom;
   }
 
@@ -26,7 +28,7 @@ class NetflixChart extends Component {
 
   createAttributes() {
     // Dimensions
-    const { totalH, margin } = this;
+    const { totalH, margin, padding } = this;
 
     // Define the div for the tooltip
     const div = d3
@@ -44,6 +46,7 @@ class NetflixChart extends Component {
       .attr('height', totalH + margin.top + margin.bottom + 5)
       .attr('class', 'bar-g')
       .append('g')
+      .attr('id', `data_${this.props.id}`)
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
     // Y Axis
@@ -51,14 +54,14 @@ class NetflixChart extends Component {
     d3.select(`#chart_${this.props.id}`)
       .append('g')
       .attr('id', `yAxis_${this.props.id}`)
-      .attr('transform', `translate(${50 + margin.left}, ${margin.top})`)
+      .attr('transform', `translate(${padding + margin.left}, ${margin.top})`)
       .call(yAxis);
 
     d3.select(`#yAxis_${this.props.id}`)
       .append('text')
         .attr('font-family', 'Montserrat')
         .attr('x', -100)
-        .attr('y', -50)
+        .attr('y', -padding)
         .attr('transform', `rotate(-90)`)
         .attr('fill', 'black')
         .attr('font-size', 20)
@@ -69,14 +72,14 @@ class NetflixChart extends Component {
     d3.select(`#chart_${this.props.id}`)
       .append('g')
       .attr('id', `xAxis_${this.props.id}`)
-      .attr('transform', `translate(${margin.left}, ${totalH - margin.bottom - 50})`)
+      .attr('transform', `translate(${margin.left}, ${totalH - margin.bottom - padding})`)
       .call(xAxis);
 
     d3.select(`#xAxis_${this.props.id}`)
       .append('text')
         .attr('font-family', 'Montserrat')
-        .attr('x', this.w/2 - 50)
-        .attr('y', 50)
+        .attr('x', this.w/2 - padding)
+        .attr('y', padding)
         .attr('fill', 'black')
         .attr('font-size', 20)
         .text('Rating')
@@ -85,70 +88,63 @@ class NetflixChart extends Component {
     let parent = this;
     svg
       .selectAll()
-      .data(this.props.dataset, d => d.userRatingScore + ':' + d.releaseYear) //55:1940
-      .enter()
-      .append('rect')
-        .attr('x', d => this.xAxisScale(+d.userRatingScore) + 5)
-        .attr('y', d => this.yAxisScale(+d.releaseYear) - 5)
-        .attr('width', 10)
-        .attr('height', 10)
-        .attr('rx', 50)
+      .data(this.props.dataset)
+      .join('circle')
+        .attr('cx', d => this.xAxisScale(+d.userRatingScore))
+        .attr('cy', d => this.yAxisScale(+d.releaseYear))
+        .attr('r', 5)
         .style('fill', d => this.myColor(+d.userRatingScore))
       .on('mouseover', function(d, i){
         d3.select(this)
           .transition()
-          .attr('x', parent.xAxisScale(+d.userRatingScore))
-          .attr('y', parent.yAxisScale(+d.releaseYear) - 10)
-          .attr('width', 20)
-          .attr('height', 20)
-          .attr('rx', 50)
+          .attr('cx', parent.xAxisScale(+d.userRatingScore))
+          .attr('cy', parent.yAxisScale(+d.releaseYear))
+          .attr('r', 10)
           .style('fill', parent.myColor(+d.userRatingScore));
 
           div
             .transition()		
-            .duration(200)	
             .style("opacity", .9);		
           div.html(`${d.title} (${d.releaseYear}, ${d.userRatingScore})`)
-            .style('width', console.log(d.title.width))
             .style("left", (d3.event.pageX) + "px")		
             .style("top", (d3.event.pageY - 28) + "px");
       })
       .on('mouseout', function(d, i){
         d3.select(this)
           .transition()
-          .attr('x', parent.xAxisScale(+d.userRatingScore) + 5)
-          .attr('y', parent.yAxisScale(+d.releaseYear) - 5)
-          .attr('width', 10)
-          .attr('height', 10)
-          .attr('rx', 50)
+          .attr('cx', parent.xAxisScale(+d.userRatingScore))
+          .attr('cy', parent.yAxisScale(+d.releaseYear))
+          .attr('r', 5)
           .style('fill', parent.myColor(+d.userRatingScore))
 
         div.transition()
-          .duration(500)
           .style("opacity", 0);
-
-        d3.select(`#t-${i}`).remove();
       })
   }
 
   render() {
     const { dataset } = this.props;
 
+    const ratingMin = d3.min(dataset, d => +d.userRatingScore)
+    const yearMin = d3.min(dataset, d => +d.releaseYear)
+    const ratingMax = d3.max(dataset, d => +d.userRatingScore)
+    const yearMax = d3.max(dataset, d => +d.releaseYear)
+
     // Scales
     this.myColor = d3
       .scaleLinear()
-      .domain(d3.extent(dataset, d => +d.userRatingScore))
+      .domain([ratingMin, ratingMax])
       .range(['#fdba9a', '#c81912']);
 
     this.xAxisScale = d3
       .scaleLinear()
-      .domain(d3.extent(dataset, d => +d.userRatingScore))
-      .range([50, this.w - 175])
+      .domain([ratingMin - 1, ratingMax])
+      .range([this.padding, this.w - this.chartSize])
 
     this.yAxisScale = d3
       .scaleLinear()
-      .domain(d3.extent(dataset, d => +d.releaseYear))
-      .range([this.h - 50, this.margin.bottom])
+      .domain([yearMin - 1, yearMax])
+      .range([this.h - this.padding, this.margin.bottom])
 
     return <svg ref={el => (this.svg = el)}>
       <g id="netflix_logo">
@@ -178,7 +174,7 @@ class NetflixChart extends Component {
           are rated higher!
         </text>
         <text x={this.w - 100} y={400} fill="black" fontSize="12">
-          [Dataset = 1000]
+          [Non-filtered dataset = 1000]
         </text>
       </g>
     </svg>;

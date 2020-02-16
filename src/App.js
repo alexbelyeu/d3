@@ -3,10 +3,9 @@
 import React from 'react';
 import RGL, { WidthProvider } from 'react-grid-layout';
 import * as d3 from 'd3';
-import D3Chart from './D3Chart';
-import HybridChart from './HybridChart/index';
-import NetflixChart from './NetflixChart/index';
-import netflixData from './netflix_shows.csv';
+import HeatmapChart from './components/HeatmapChart';
+import BarsChart from './components/BarsChart';
+import netflixData from './data/netflix_shows.csv';
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -33,10 +32,10 @@ export default class NoDraggingLayout extends React.Component {
   generateDOM() {
     return [
       <div key={0}>
-        {this.state.data.length > 0 && <NetflixChart id={0} width={this.width} dataset={this.state.data} />}
+        {this.state.data.length > 0 && <HeatmapChart id={0} width={this.width} dataset={this.state.data} />}
       </div>,
       <div key={1}>
-        {this.state.data.length > 0 && <NetflixChart scaleBand id={1} width={this.width} dataset={this.state.data} />}
+        {this.state.data.length > 0 && <BarsChart id={1} width={this.width} dataset={this.state.data} />}
       </div>,
     ];
   }
