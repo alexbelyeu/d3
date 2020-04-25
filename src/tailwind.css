@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+
+.card {
+  @apply shadow-xl;
+}
+.card:hover {
+  @apply bg-red-100;
+}
+
+@tailwind utilities;
