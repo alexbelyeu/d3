@@ -14,7 +14,7 @@ const App = () => {
       const filteredData = data.filter((d) => !isNaN(d.userRatingScore));
       setData(filteredData);
     });
-  }, [data]);
+  }, []);
 
   return (
     <div>
